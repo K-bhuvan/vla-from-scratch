@@ -32,6 +32,11 @@ runs/
 logs/
 *.log
 outputs/       # Hydra default output directory
+!outputs/
+outputs/*
+!outputs/eval/
+outputs/eval/*
+!outputs/eval/metrics.json
 
 # Generated docs/build exports
 docs/*

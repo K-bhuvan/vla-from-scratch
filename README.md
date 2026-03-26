@@ -47,7 +47,7 @@ Run a single stage:
 
 Latest evaluation artifacts are in outputs/eval.
 
-From outputs/eval/metrics.json:
+From [outputs/eval/metrics.json](outputs/eval/metrics.json):
 
 | Checkpoint | Overall Success | Reach | Pick | Place | Pick+Place |
 |---|---:|---:|---:|---:|---:|
@@ -56,7 +56,7 @@ From outputs/eval/metrics.json:
 | Best-per-task ensemble | 63.3% | 100.0% | 68.8% | 59.4% | 25.0% |
 
 Generated outputs:
-- JSON metrics: outputs/eval/metrics.json
+- JSON metrics: [outputs/eval/metrics.json](outputs/eval/metrics.json)
 - HTML report: outputs/eval/report.html
 - Demo GIFs (repo): media/
 
