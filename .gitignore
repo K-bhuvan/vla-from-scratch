@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Conda / virtual environments
+.env
+.venv
+env/
+
+# Checkpoints and model weights — too large for git
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Raw and processed data — never commit raw data
+data/raw/
+data/processed/
+data/interim/
+data/external/
+
+# Common artifact directories
+artifacts/
+model_artifacts/
+
+# Experiment logs and wandb runs
+wandb/
+runs/
+logs/
+*.log
+outputs/       # Hydra default output directory
+
+# Generated docs/build exports
+docs/*
+
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS clutter
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Test coverage
+.coverage
+htmlcov/

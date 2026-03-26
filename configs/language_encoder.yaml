@@ -1,0 +1,77 @@
+# configs/language_encoder.yaml  —  Baby Step 4: Language Encoder Configuration
+
+# ════════════════════════════════════════════════════════════════════════════════
+# LANGUAGE ENCODER CONFIGURATIONS
+# ════════════════════════════════════════════════════════════════════════════════
+# These pre-defined configs are used in training, evaluation, and inference.
+# Match the embedding dimension to the vision encoder for seamless fusion (Step 5).
+
+# ════════════════════════════════════════════════════════════════════════════════
+# TINY CONFIG  —  for MVP and fast experimentation
+# ════════════════════════════════════════════════════════════════════════════════
+tiny:
+  embed_dim: 128         # Match vision encoder "tiny"
+  num_heads: 4           # 128 / 4 = 32 dims per head
+  num_layers: 4          # 4 transformer blocks
+  mlp_ratio: 4.0         # hidden_dim = 128 * 4 = 512
+  vocab_size: 2048       # Token vocabulary size
+  max_seq_len: 128       # Max instruction length in tokens
+  dropout: 0.0           # 0.0 during training, may add later
+  # Approx params: ~1.1 M
+
+# ════════════════════════════════════════════════════════════════════════════════
+# SMALL CONFIG  —  recommended balance between capacity and GPU memory
+# ════════════════════════════════════════════════════════════════════════════════
+small:
+  embed_dim: 256         # Match vision encoder "small"
+  num_heads: 8           # 256 / 8 = 32 dims per head
+  num_layers: 6          # 6 transformer blocks
+  mlp_ratio: 4.0         # hidden_dim = 256 * 4 = 1024
+  vocab_size: 2048
+  max_seq_len: 128
+  dropout: 0.0
+  # Approx params: ~5.3 M
+
+# ════════════════════════════════════════════════════════════════════════════════
+# BASE CONFIG  —  maximum expressivity, requires more GPU memory
+# ════════════════════════════════════════════════════════════════════════════════
+base:
+  embed_dim: 512         # Match vision encoder "base"
+  num_heads: 8           # 512 / 8 = 64 dims per head
+  num_layers: 8          # 8 transformer blocks
+  mlp_ratio: 4.0         # hidden_dim = 512 * 4 = 2048
+  vocab_size: 2048
+  max_seq_len: 128
+  dropout: 0.0
+  # Approx params: ~26 M
+
+# ════════════════════════════════════════════════════════════════════════════════
+# NOTES
+# ════════════════════════════════════════════════════════════════════════════════
+# 1. embed_dim MUST match vision encoder config for fusion (Step 5)
+#    - tiny vision + tiny language: 128
+#    - small vision + small language: 256
+#    - base vision + base language: 512
+#
+# 2. All configs use vocab_size=2048 (this should match your tokenizer's vocab)
+#    For a simple tokenizer, 2048 tokens covers ~99% of typical instructions
+#
+# 3. max_seq_len=128 is generous for robot instructions
+#    Example: "pick the red cube and place it in the green box" = ~12 tokens
+#
+# 4. dropout=0.0 during early training. Can tune to 0.1 if overfitting observed.
+#
+# 5. mlp_ratio=4.0 is standard (hidden_dim = embed_dim * 4)
+#    Reduces to smaller values for extreme memory constraints.
+#
+# 6. Head dims are always 32 (embed_dim / num_heads):
+#    - tiny: 128 / 4 = 32 per head
+#    - small: 256 / 8 = 32 per head
+#    - base: 512 / 8 = 64 per head (slightly wider for more capacity)
+#
+# 7. Parameter breakdown for "small":
+#    - TokenEmbedding: 2048 × 256 ≈ 0.5 M
+#    - Positional Embedding: 129 × 256 ≈ 0.03 M
+#    - 6 TransformerBlocks: 4 × 0.25 M ≈ 1.5 M each → ~5.0 M total
+#    - CLS token + LayerNorm: ≈ 0.02 M
+#    - Total: ≈ 5.3 M trainable parameters

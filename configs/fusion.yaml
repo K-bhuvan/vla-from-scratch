@@ -1,0 +1,117 @@
+# configs/fusion.yaml  —  Baby Step 5: Vision-Language Fusion Module Configuration
+
+# ════════════════════════════════════════════════════════════════════════════════
+# VISION-LANGUAGE FUSION CONFIGURATIONS
+# ════════════════════════════════════════════════════════════════════════════════
+# These pre-defined configs control the cross-attention fusion between vision and
+# language embeddings. Most important: embed_dim MUST match the vision/language
+# encoder configs you're using, so the dimensions align for concatenation.
+
+# ════════════════════════════════════════════════════════════════════════════════
+# TINY CONFIG  —  for MVP and fast experimentation
+# ════════════════════════════════════════════════════════════════════════════════
+tiny:
+  embed_dim: 128              # Must match vision_tiny + language_tiny
+  num_heads: 4                # 128 / 4 = 32 dims per head
+  num_fusion_layers: 2        # 2 rounds of bidirectional cross-attention
+  mlp_ratio: 4.0              # hidden_dim = 128 * 4 = 512
+  dropout: 0.0                # Can tune to 0.1 if overfitting
+  # Approx params: ~0.73 M
+  # Output: fused_cls (B, 256) + fused_tokens (B, 144, 256)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# SMALL CONFIG  —  recommended balance, matches OpenVLA architecture
+# ════════════════════════════════════════════════════════════════════════════════
+small:
+  embed_dim: 256              # Must match vision_small + language_small
+  num_heads: 8                # 256 / 8 = 32 dims per head
+  num_fusion_layers: 2        # 2 rounds of bidirectional cross-attention
+  mlp_ratio: 4.0              # hidden_dim = 256 * 4 = 1024
+  dropout: 0.0
+  # Approx params: ~3.8 M
+  # Output: fused_cls (B, 512) + fused_tokens (B, 144, 512)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# BASE CONFIG  —  maximum expressivity for larger models
+# ════════════════════════════════════════════════════════════════════════════════
+base:
+  embed_dim: 512              # Must match vision_base + language_base
+  num_heads: 8                # 512 / 8 = 64 dims per head
+  num_fusion_layers: 2        # 2 rounds of bidirectional cross-attention
+  mlp_ratio: 4.0              # hidden_dim = 512 * 4 = 2048
+  dropout: 0.0
+  # Approx params: ~15 M
+  # Output: fused_cls (B, 1024) + fused_tokens (B, 144, 1024)
+
+# ════════════════════════════════════════════════════════════════════════════════
+# NOTES
+# ════════════════════════════════════════════════════════════════════════════════
+# 1. embed_dim MUST match your vision + language encoder choice:
+#    - tiny  config uses 128-dim v-encoder + 128-dim l-encoder → 256-dim output
+#    - small config uses 256-dim v-encoder + 256-dim l-encoder → 512-dim output
+#    - base  config uses 512-dim v-encoder + 512-dim l-encoder → 1024-dim output
+#
+# 2. num_fusion_layers controls fusion depth:
+#    - 1: Very fast (~60% params), basic alignment
+#    - 2: **Recommended** — good balance of speed and quality
+#    - 3+: Deeper alignment, slower, diminishing returns for MVP
+#
+# 3. Cross-Attention Mechanism:
+#    Each FusionBlock runs bidirectional cross-attention:
+#      - Vision patches query language tokens (patches ask "what language describes me?")
+#      - Language tokens query vision patches (tokens ask "where in the image do I apply?")
+#    This differs from self-attention (which looks within one modality).
+#
+# 4. Output dimensions:
+#    fused_cls : (B, 2 * embed_dim)       — concatenated cls tokens
+#    fused_tokens : (B, 144, 2 * embed_dim) — concatenated patch/token features
+#
+#    Example for small config:
+#    fused_cls : (B, 512)       — 256 (vision) + 256 (language)
+#    fused_tokens : (B, 144, 512) — 256×144 (vision) + 256×144 (language) truncated
+#
+# 5. Parameter breakdown for "small" (embed_dim=256, 2 blocks):
+#    - Block 1, Vision→Language CrossAttn
+#        Q proj (256→256): 256 × 256 = 65k
+#        KV proj (256→512): 256 × 512 = 131k
+#        Out proj (256→256): 256 × 256 = 65k
+#    - Block 1, Language→Vision CrossAttn: (same as above)
+#    - Block 1 MLPs: 2 × (256→1024→256) = 530k
+#    - Block 2: (repeat)
+#    - LayerNorms + CLS handling: ~10k
+#    - Total: ~3.8 M parameters
+#
+# 6. Computation cost:
+#    Cross-attention is O(N_q × N_kv × d), where:
+#      N_q = query sequence length (144 vision patches OR ~32 language tokens)
+#      N_kv = key/value sequence length (the other modality)
+#      d = head_dim (usually 32)
+#
+#    Vision→Language: 144 queries × 32 keys × 32d = efficient (144 × 32 = 4608)
+#    Language→Vision: 32 queries × 144 keys × 32d = efficient (32 × 144 = 4608)
+#
+#    Much better than self-attention on concatenated 176-token sequence!
+#
+# 7. Fusion order in training:
+#    Pre-training (Step 7):
+#      - Use fused_cls for contrastive loss
+#      - Align image-instruction embeddings in shared space
+#    SFT (Step 8):
+#      - Use fused_cls + action head for behavior cloning
+#      - Learn policies from expert demonstrations
+#
+# 8. Why concat instead of other fusion methods:
+#    Concat:
+#      - Pro: Simple, interpretable (vision features + language features)
+#      - Pro: No information loss from modality mixing
+#      - Con: Doubles the output dimension
+#    
+#    Addition:
+#      - Pro: Smaller output (stays at embed_dim)
+#      - Con: Loses information (some content gets overwritten)
+#    
+#    Gating/bilinear interaction:
+#      - Pro: Can learn complex relationships
+#      - Con: Adds many parameters, slower
+#    
+#    Concat is best for MVP because it's simple, fast, and works well in practice.

@@ -1,0 +1,45 @@
+# configs/eval.yaml  -  Baby Step 10: evaluation + visual HTML demo
+
+experiment:
+  name: stage_d_eval
+  seed: 42
+  output_dir: outputs/eval
+
+model:
+  size: small
+  dropout: 0.0
+  vocab_size: 2048
+  max_seq_len: 32
+  num_fusion_layers: 2
+  use_state: true
+  state_dim: 10
+  action_dim: 7
+
+checkpoints:
+  - label: sft
+    title: Step 8 Behavior Cloning
+    path: outputs/sft/best.pt
+  - label: posttrain
+    title: Step 9 DAgger-lite
+    path: outputs/posttrain/best.pt
+  - label: best_per_task
+    title: Best Per-Task Ensemble
+    per_task_paths:
+      reach_target: outputs/sft/best.pt
+      pick_object: outputs/posttrain/best.pt
+      place_object: outputs/sft/best.pt
+      pick_and_place_object: outputs/sft/best.pt
+
+eval:
+  tasks:
+    - reach_target
+    - pick_object
+    - place_object
+    - pick_and_place_object
+  num_episodes_per_task: 32
+  max_steps: 100
+  action_clip: 0.25
+  action_clip_gripper: 0.5
+  save_demo_gifs: true
+  gif_upscale: 6
+  gif_duration_ms: 120

@@ -1,0 +1,50 @@
+# Data generation configuration
+# Referenced by: data/generate_sim_data.py
+#
+# This file is not yet wired to Hydra — it documents the default values used
+# by the script's argparse flags.  In Baby Step 7 (pre-training) we will move
+# all configs to Hydra so the training launcher reads this automatically.
+#
+# Usage:
+#   python data/generate_sim_data.py                      # use all defaults below
+#   python data/generate_sim_data.py --num-episodes 100   # override one value
+
+# ── Tasks ─────────────────────────────────────────────────────────────────────
+tasks:
+  - reach_target    # move end-effector to a random 3-D target
+  - pick_object     # primitive skill: approach object, grasp, lift
+  - place_object    # primitive skill: move grasped object to box, release
+  - pick_and_place_object  # composed skill: pick + place
+
+# ── Episode counts ─────────────────────────────────────────────────────────────
+# 500 episodes × 4 tasks = 2 000 episodes total.
+# Each episode is ~50 frames → ~100 000 training samples for SFT.
+# For a quick sanity run use 50 episodes per task.
+num_episodes_per_task: 500
+
+# ── Episode length ─────────────────────────────────────────────────────────────
+# Maximum timesteps before an episode is cut off.
+# reach_target converges in ~20 steps; composed tasks may need up to ~70.
+max_steps: 50
+
+# ── Output ─────────────────────────────────────────────────────────────────────
+output_dir: data/raw/sim_demos   # relative to project root; gitignored
+
+# ── Image dimensions ───────────────────────────────────────────────────────────
+# 84×84 is intentionally small — fast to generate, fast to load during training.
+# Increase to 128×128 or 224×224 later once the pipeline is proven.
+image:
+  height: 84
+  width:  84
+
+# ── Robot state / action dimensions ────────────────────────────────────────────
+robot:
+  state_dim:  7    # [x, y, z, roll, pitch, yaw, gripper]
+  action_dim: 7    # [dx, dy, dz, d_roll, d_pitch, d_yaw, d_gripper]
+  workspace:
+    x: [-0.5, 0.5]
+    y: [-0.5, 0.5]
+    z: [ 0.0, 0.5]
+
+# ── Reproducibility ─────────────────────────────────────────────────────────────
+seed: 42

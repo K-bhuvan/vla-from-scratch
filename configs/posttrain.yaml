@@ -1,0 +1,51 @@
+# configs/posttrain.yaml  -  Baby Step 9: DAgger-lite post-training
+
+experiment:
+  name: stage_c_dagger_lite
+  seed: 42
+  output_dir: outputs/posttrain
+
+init:
+  sft_checkpoint: outputs/sft/best.pt
+
+model:
+  size: small
+  dropout: 0.0
+  vocab_size: 2048
+  max_seq_len: 32
+  num_fusion_layers: 2
+  use_state: true
+  state_dim: 10
+  action_dim: 7
+
+collect:
+  tasks:
+    - reach_target
+    - pick_object
+    - place_object
+    - pick_and_place_object
+  num_rollout_episodes: 128
+  max_steps: 100
+  correction_mae_threshold: 0.03
+  action_clip: 0.25
+  action_clip_gripper: 0.5
+  keep_success_all_steps: false
+
+optim:
+  lr: 2.0e-5
+  beta1: 0.9
+  beta2: 0.98
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  min_lr: 5.0e-6
+
+train:
+  batch_size: 64
+  epochs: 12
+  val_ratio: 0.1
+  loss_name: huber
+  huber_delta: 0.25
+  grad_clip_norm: 1.0
+  early_stopping_patience: 4
+  early_stopping_min_delta: 0.0001
+  bc_reg_weight: 5.0e-4

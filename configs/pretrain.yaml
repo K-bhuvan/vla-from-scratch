@@ -1,0 +1,39 @@
+# configs/pretrain.yaml  -  Baby Step 7: Stage A contrastive pre-training
+
+experiment:
+  name: stage_a_contrastive
+  seed: 42
+  output_dir: outputs/pretrain
+
+data:
+  root_dir: data/raw/sim_demos
+  batch_size: 32
+  num_workers: 2
+  pin_memory: true
+  val_ratio: 0.1
+  max_files: 0          # 0 = use all episodes; set small number for quick smoke tests
+
+model:
+  size: small           # tiny | small | base
+  dropout: 0.0
+  vocab_size: 2048
+  max_seq_len: 32
+  proj_dim: 256
+
+optim:
+  lr: 3.0e-4
+  beta1: 0.9
+  beta2: 0.98
+  weight_decay: 1.0e-4
+  scheduler: cosine   # none | cosine
+  min_lr: 1.0e-5
+
+train:
+  epochs: 50
+  temperature: 0.07
+  grad_clip_norm: 1.0
+  mask_duplicate_text_negatives: true
+  early_stopping_patience: 8
+  early_stopping_min_delta: 0.001
+  max_train_batches: 0  # 0 = full epoch
+  max_eval_batches: 0   # 0 = full val set

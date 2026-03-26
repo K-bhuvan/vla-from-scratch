@@ -1,0 +1,48 @@
+# configs/sft.yaml  -  Baby Step 8: supervised fine-tuning / behavior cloning
+
+experiment:
+  name: stage_b_sft
+  seed: 42
+  output_dir: outputs/sft
+
+init:
+  pretrain_checkpoint: null   # set to outputs/pretrain/best.pt to warm-start from Stage A
+
+data:
+  root_dir: data/raw/sim_demos
+  batch_size: 64
+  num_workers: 2
+  pin_memory: true
+  val_ratio: 0.1
+  max_files: 0          # 0 = all episode files
+  min_action_l1: 0.02
+  keep_low_action_prob: 0.25
+  task_balanced_sampling: true  # equalise gradient updates: p&p has 5x more steps than pick
+
+model:
+  size: small
+  dropout: 0.0
+  vocab_size: 2048
+  max_seq_len: 32
+  num_fusion_layers: 2
+  use_state: true
+  state_dim: 10
+  action_dim: 7
+
+optim:
+  lr: 1.0e-4
+  beta1: 0.9
+  beta2: 0.98
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  min_lr: 1.0e-5
+
+train:
+  epochs: 40
+  loss_name: huber      # mse | huber
+  huber_delta: 0.25
+  grad_clip_norm: 1.0
+  early_stopping_patience: 6
+  early_stopping_min_delta: 0.0001
+  max_train_batches: 0
+  max_eval_batches: 0
