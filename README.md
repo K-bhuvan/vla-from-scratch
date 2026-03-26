@@ -58,17 +58,17 @@ From outputs/eval/metrics.json:
 Generated outputs:
 - JSON metrics: outputs/eval/metrics.json
 - HTML report: outputs/eval/report.html
-- Demo GIFs: outputs/eval/media
+- Demo GIFs (repo): media/
 
 ### Qualitative Demos (Best-Per-Task)
 
 | reach_target | pick_object |
 |---|---|
-| ![reach_target demo](outputs/eval/media/best_per_task_reach_target.gif) | ![pick_object demo](outputs/eval/media/best_per_task_pick_object.gif) |
+| ![reach_target demo](media/best_per_task_reach_target.gif) | ![pick_object demo](media/best_per_task_pick_object.gif) |
 
 | place_object | pick_and_place_object |
 |---|---|
-| ![place_object demo](outputs/eval/media/best_per_task_place_object.gif) | ![pick_and_place_object demo](outputs/eval/media/best_per_task_pick_and_place_object.gif) |
+| ![place_object demo](media/best_per_task_place_object.gif) | ![pick_and_place_object demo](media/best_per_task_pick_and_place_object.gif) |
 
 ## Repository Layout
 
