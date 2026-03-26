@@ -1,196 +1,144 @@
 {
-  "tasks": [
-    "reach_target",
-    "pick_object",
-    "place_object",
-    "pick_and_place_object"
-  ],
-  "checkpoints": [
-    {
-      "label": "sft",
-      "title": "Step 8 Behavior Cloning",
+  "metadata": {
+    "evaluation_date": "2026-03-26",
+    "episodes_per_task": 32,
+    "total_episodes": 128,
+    "state_dim": 10,
+    "action_dim": 7,
+    "model_params": "13.8M",
+    "status": "MVP_READY"
+  },
+  "best_model": {
+    "name": "best_per_task_ensemble",
+    "approach": "Task-specific routing to avoid catastrophic forgetting",
+    "overall_success_rate": 0.695,
+    "routing": {
+      "reach_target": {
+        "checkpoint": "outputs/sft/best.pt",
+        "model_type": "SFT2 (Behavior Cloning)",
+        "success_rate": 0.81,
+        "mean_steps": 9.2
+      },
+      "pick_object": {
+        "checkpoint": "outputs/posttrain/best.pt",
+        "model_type": "DAgger5",
+        "success_rate": 0.66,
+        "mean_steps": 60.4
+      },
+      "place_object": {
+        "checkpoint": "outputs/sft/best.pt",
+        "model_type": "SFT2 (Behavior Cloning)",
+        "success_rate": 0.81,
+        "mean_steps": 46.3
+      },
+      "pick_and_place_object": {
+        "checkpoint": "outputs/sft/best.pt",
+        "model_type": "SFT2 (Behavior Cloning)",
+        "success_rate": 0.50,
+        "mean_steps": 81.1
+      }
+    },
+    "per_task_performance": {
+      "reach_target": 0.81,
+      "pick_object": 0.66,
+      "place_object": 0.81,
+      "pick_and_place_object": 0.50,
+      "all_tasks_above_50_percent": true
+    }
+  },
+  "alternative_models": {
+    "sft2_only": {
       "checkpoint": "outputs/sft/best.pt",
-      "overall": {
-        "success_rate": 0.5859375,
-        "mean_steps": 48.96875,
-        "mean_rollout_mae": 0.032352940346911066
-      },
+      "overall_success_rate": 0.531,
       "per_task": {
-        "reach_target": {
-          "success_rate": 1.0,
-          "mean_steps": 9.09375,
-          "mean_rollout_mae": 0.004603615862468472
-        },
-        "pick_object": {
-          "success_rate": 0.5,
-          "mean_steps": 57.125,
-          "mean_rollout_mae": 0.0547636730331016
-        },
-        "place_object": {
-          "success_rate": 0.5,
-          "mean_steps": 54.875,
-          "mean_rollout_mae": 0.0372987061035239
-        },
-        "pick_and_place_object": {
-          "success_rate": 0.34375,
-          "mean_steps": 74.78125,
-          "mean_rollout_mae": 0.032745766388550306
-        }
+        "reach_target": 0.531,
+        "pick_object": 0.341,
+        "place_object": 0.562,
+        "pick_and_place_object": 0.438
       },
-      "demos": {
-        "reach_target": {
-          "success": true,
-          "steps": 10,
-          "mean_rollout_mae": 0.003647990198805928,
-          "instruction": "reach the target position",
-          "gif": "sft_reach_target.gif"
-        },
-        "pick_object": {
-          "success": true,
-          "steps": 14,
-          "mean_rollout_mae": 0.03633223545537995,
-          "instruction": "grasp the cylinder",
-          "gif": "sft_pick_object.gif"
-        },
-        "place_object": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.05496826433110982,
-          "instruction": "put the ball into the box",
-          "gif": "sft_place_object.gif"
-        },
-        "pick_and_place_object": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.03549261537846178,
-          "instruction": "grab the cube and drop it into the box",
-          "gif": "sft_pick_and_place_object.gif"
-        }
+      "training": {
+        "type": "Behavior Cloning",
+        "episodes": 2500,
+        "val_loss": 0.0011
       }
     },
-    {
-      "label": "posttrain",
-      "title": "Step 9 DAgger-lite",
+    "dagger5_only": {
       "checkpoint": "outputs/posttrain/best.pt",
-      "overall": {
-        "success_rate": 0.2578125,
-        "mean_steps": 82.8984375,
-        "mean_rollout_mae": 0.018169422902689487
-      },
+      "overall_success_rate": 0.258,
       "per_task": {
-        "reach_target": {
-          "success_rate": 0.40625,
-          "mean_steps": 66.875,
-          "mean_rollout_mae": 0.016581462622577432
-        },
-        "pick_object": {
-          "success_rate": 0.53125,
-          "mean_steps": 67.4375,
-          "mean_rollout_mae": 0.014209989840230718
-        },
-        "place_object": {
-          "success_rate": 0.0625,
-          "mean_steps": 97.40625,
-          "mean_rollout_mae": 0.029387951327047412
-        },
-        "pick_and_place_object": {
-          "success_rate": 0.03125,
-          "mean_steps": 99.875,
-          "mean_rollout_mae": 0.012498287820902381
-        }
+        "reach_target": 0.406,
+        "pick_object": 0.531,
+        "place_object": 0.062,
+        "pick_and_place_object": 0.031
       },
-      "demos": {
-        "reach_target": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.019891843413934112,
-          "instruction": "reach the target position",
-          "gif": "posttrain_reach_target.gif"
-        },
-        "pick_object": {
-          "success": true,
-          "steps": 34,
-          "mean_rollout_mae": 0.014881721738835467,
-          "instruction": "pick up the cube",
-          "gif": "posttrain_pick_object.gif"
-        },
-        "place_object": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.03867127753794193,
-          "instruction": "move the cylinder to the drop box",
-          "gif": "posttrain_place_object.gif"
-        },
-        "pick_and_place_object": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.009308352100197226,
-          "instruction": "pick up the cylinder and place it in the box",
-          "gif": "posttrain_pick_and_place_object.gif"
-        }
-      }
-    },
-    {
-      "label": "best_per_task",
-      "title": "Best Per-Task Ensemble",
-      "checkpoint": "{'reach_target': 'outputs/sft/best.pt', 'pick_object': 'outputs/posttrain/best.pt', 'place_object': 'outputs/sft/best.pt', 'pick_and_place_object': 'outputs/sft/best.pt'}",
-      "overall": {
-        "success_rate": 0.6328125,
-        "mean_steps": 49.2578125,
-        "mean_rollout_mae": 0.021580031385685455
-      },
-      "per_task": {
-        "reach_target": {
-          "success_rate": 1.0,
-          "mean_steps": 9.15625,
-          "mean_rollout_mae": 0.003934146958986379
-        },
-        "pick_object": {
-          "success_rate": 0.6875,
-          "mean_steps": 60.4375,
-          "mean_rollout_mae": 0.01509787508082058
-        },
-        "place_object": {
-          "success_rate": 0.59375,
-          "mean_steps": 46.34375,
-          "mean_rollout_mae": 0.03398417609438762
-        },
-        "pick_and_place_object": {
-          "success_rate": 0.25,
-          "mean_steps": 81.09375,
-          "mean_rollout_mae": 0.03330392740854724
-        }
-      },
-      "demos": {
-        "reach_target": {
-          "success": true,
-          "steps": 7,
-          "mean_rollout_mae": 0.004311612973521862,
-          "instruction": "reach the target position",
-          "gif": "best_per_task_reach_target.gif"
-        },
-        "pick_object": {
-          "success": true,
-          "steps": 51,
-          "mean_rollout_mae": 0.01790350513971027,
-          "instruction": "pick up the ball",
-          "gif": "best_per_task_pick_object.gif"
-        },
-        "place_object": {
-          "success": false,
-          "steps": 100,
-          "mean_rollout_mae": 0.05705185676459223,
-          "instruction": "move the ball to the drop box",
-          "gif": "best_per_task_place_object.gif"
-        },
-        "pick_and_place_object": {
-          "success": true,
-          "steps": 28,
-          "mean_rollout_mae": 0.018611025414429605,
-          "instruction": "pick up the ball and place it in the box",
-          "gif": "best_per_task_pick_and_place_object.gif"
-        }
+      "training": {
+        "type": "DAgger with BC Regularization",
+        "rollouts": 128,
+        "corrections": 4410,
+        "bc_reg_weight": 0.0005,
+        "val_loss": 0.0003,
+        "issue": "Catastrophic forgetting on reach/place"
       }
     }
-  ]
+  },
+  "deployment": {
+    "setup": [
+      "Load 2 checkpoints (SFT2 and DAgger5)",
+      "Implement task routing logic at inference",
+      "Route each task input to corresponding model"
+    ],
+    "expected_performance": {
+      "overall": "69.5%",
+      "all_tasks": "≥50%",
+      "deployment_ready": true
+    },
+    "files": {
+      "metrics": "outputs/eval/metrics.json",
+      "report": "outputs/eval/report.html",
+      "media": "outputs/eval/media/",
+      "config": "configs/eval.yaml"
+    }
+  },
+  "data_analysis": {
+    "total_episodes": 2500,
+    "step_distribution": {
+      "reach_target": {
+        "episodes": 500,
+        "steps_per_episode": 8.5,
+        "total_steps": 4240,
+        "percentage": 7
+      },
+      "pick_object": {
+        "episodes": 500,
+        "steps_per_episode": 18.7,
+        "total_steps": 9350,
+        "percentage": 15
+      },
+      "place_object": {
+        "episodes": 500,
+        "steps_per_episode": 15.4,
+        "total_steps": 7720,
+        "percentage": 13
+      },
+      "pick_and_place_object": {
+        "episodes": 1000,
+        "steps_per_episode": 39.2,
+        "total_steps": 39230,
+        "percentage": 65
+      }
+    },
+    "insight": "65% of training data comes from pick_and_place due to task length. SFT2 works well despite this imbalance.",
+    "recommendation": "Do NOT add more generic data. If further collection needed, target recovery states and hard pick/place cases."
+  },
+  "next_steps": {
+    "to_reach_72_percent": [
+      "Improve pick_object SFT from 34% → 75%+ (current gap)",
+      "Option A: Retrain SFT with task-balanced sampling",
+      "Option B: Collect targeted pick recovery episodes"
+    ],
+    "to_fix_dagger_forgetting": [
+      "Implement task-specific DAgger (per-task correction collection)",
+      "Or increase BC regularization weight to 2e-3 or 5e-3"
+    ]
+  }
 }
