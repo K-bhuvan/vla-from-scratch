@@ -39,7 +39,9 @@ outputs/eval/*
 !outputs/eval/metrics.json
 
 # Generated docs/build exports
-docs/*
+docs/_build/
+docs/site/
+docs/.vitepress/dist/
 
 
 # Jupyter notebook checkpoints
